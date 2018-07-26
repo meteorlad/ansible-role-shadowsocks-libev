@@ -1,5 +1,7 @@
 # Ansible Role: shadowsocks-libev
 
+[![Build Status](https://travis-ci.org/meteorlad/ansible-role-shadowsocks-libev.svg?branch=master)](https://travis-ci.org/meteorlad/ansible-role-shadowsocks-libev)
+
 Install [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev) via Ansible.
 
 ## Features

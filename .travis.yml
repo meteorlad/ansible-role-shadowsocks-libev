@@ -6,7 +6,7 @@ services:
 before_install:
   # Fetch base image and build new container
   - sudo docker pull centos:7
-  - sudo docker build --rm=true --tag=travispoc .
+  - sudo docker build --rm=true --tag=travispoc ./test/Dockerfile
 
 script:
   # Run container in detached state

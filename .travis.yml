@@ -1,26 +1,22 @@
----
-language: python
-python: "2.7"
+sudo: required
+
+services:
+  - docker
 
 before_install:
-  - sudo apt-get update -qq
-
-install:
-  - pip install ansible
-
-  # Add ansible.cfg to pick up roles path.
-  - "{ echo '[defaults]'; echo 'roles_path = ../'; } >> ansible.cfg"
+  # Fetch base image and build new container
+  - sudo docker pull centos:7
+  - sudo docker build --rm=true --tag=travispoc .
 
 script:
-  # Check the role/playbook's syntax.
-  - "ansible-playbook -i tests/inventory tests/test.yml --syntax-check"
+  # Run container in detached state
+  - sudo docker run --detach --privileged --volume="${PWD}":/etc/ansible/roles/role_under_test:ro --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro travispoc /usr/lib/systemd/systemd > /tmp/container_id
+  # Check syntax of ansible playbook
+  - sudo docker exec "$(cat /tmp/container_id)" ansible-playbook /etc/ansible/roles/role_under_test/test.yml --syntax-check
+  # Run ansible playbook
+  - sudo docker exec "$(cat /tmp/container_id)" ansible-playbook /etc/ansible/roles/role_under_test/test.yml
+  # Clean up
+  - sudo docker stop "$(cat /tmp/container_id)"
 
-  # Run the role/playbook with ansible-playbook.
-  - "ansible-playbook -i tests/inventory tests/test.yml --sudo"
-
-  # Run the role/playbook again, checking to make sure it's idempotent.
-  - >
-    ansible-playbook -i tests/inventory tests/test.yml --sudo
-    | grep -q 'changed=0.*failed=0'
-    && (echo 'Idempotence test: pass' && exit 0)
-    || (echo 'Idempotence test: fail' && exit 1)
+notifications:
+  email: false

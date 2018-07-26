@@ -55,6 +55,7 @@
   with_items: "{{ shadowsocks_sysctl_params }}"
   when: shadowsocks_sysctl_tweak
   tags: sysctl
+  ignore_errors: True
 
 - name: enable tcp_fastopen if available
   sysctl:
@@ -64,6 +65,7 @@
     reload: yes
   when: shadowsocks_fast_open and shadowsocks_sysctl_tweak and ansible_kernel is version_compare('3.7', '>=')
   tags: sysctl
+  ignore_errors: True
 
 - name: start and enable service (7)
   systemd:

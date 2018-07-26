@@ -1,4 +1,5 @@
 ---
+# file: defaults/main.yml
 shadowsocks_home: "/etc/shadowsocks-libev"
 shadowsocks_password: "apn!proxy!ss!ftw!"
 

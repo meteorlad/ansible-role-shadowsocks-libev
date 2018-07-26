@@ -1,0 +1,74 @@
+---
+- name: check password complexity
+  fail:
+    msg: You're using the default password, please change it or override it in your own playbook!
+  when: shadowsocks_password == "apn!proxy!ss!ftw!"
+  tags: debug
+
+- name: role brief
+  debug:
+    msg:
+      - shadowsocks_config_server_port - {{ shadowsocks_config_server_port }}
+      - shadowsocks_fast_open - {{ shadowsocks_fast_open }}
+      - shadowsocks_obfs - {{ shadowsocks_obfs }}
+      - shadowsocks_sysctl_tweak - {{ shadowsocks_sysctl_tweak }}
+  tags: debug
+
+- name: install essential repos (7)
+  get_url:
+    url: https://copr.fedorainfracloud.org/coprs/outman/shadowsocks-libev/repo/epel-7/outman-shadowsocks-libev-epel-7.repo
+    dest: /etc/yum.repos.d/
+  when: ansible_distribution_version >= '7'
+  tags: prepare
+
+- name: install dependencies
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ shadowsocks_dependencies }}"
+  notify: restart shadowsocks-libev
+  tags: install
+
+- name: assure shadowsocks-libev home dir exists
+  file:
+    path: "{{ shadowsocks_home }}"
+    state: directory
+
+- name: generate config file
+  template:
+    src: config.json.j2
+    dest: "{{ shadowsocks_home }}/config.json"
+    mode: 644
+    owner: root
+    group: root
+    force: yes
+  notify: restart shadowsocks-libev
+  tags: config
+
+- name: tweak sysctl
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+    ignoreerrors: yes
+  with_items: "{{ shadowsocks_sysctl_params }}"
+  when: shadowsocks_sysctl_tweak
+  tags: sysctl
+
+- name: enable tcp_fastopen if available
+  sysctl:
+    name: net.ipv4.tcp_fastopen
+    value: 3
+    state: present
+    reload: yes
+  when: shadowsocks_fast_open and shadowsocks_sysctl_tweak and ansible_kernel is version_compare('3.7', '>=')
+  tags: sysctl
+
+- name: start and enable service (7)
+  systemd:
+    name: shadowsocks-libev
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  when: ansible_distribution_version >= '7'

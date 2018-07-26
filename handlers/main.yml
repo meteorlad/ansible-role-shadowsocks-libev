@@ -1,0 +1,3 @@
+---
+- name: restart shadowsocks-libev
+  service: name=shadowsocks-libev state=restarted

@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: Meteor Liu
+  description: Installs shadowsocks-libev
+  company: InspurGroup
+  license: license (GPLv3)
+  min_ansible_version: 1.6
+  platforms:
+  - name: EL
+    versions:
+      - 7
+
+  categories:
+    - networking
+    - system
+dependencies: []

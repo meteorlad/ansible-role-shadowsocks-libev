@@ -1,0 +1,5 @@
+---
+shadowsocks_dependencies:
+  - shadowsocks-libev
+  - libsodium
+  - simple-obfs

@@ -87,6 +87,22 @@ $ ansible-playbook shadowsocks-servers.yml --extra-vars "shadowsocks_password=my
   - [ ] Debian
   - [ ] Ubuntu
 
+## FAQ
+
+依赖于 epel-release源，在部署的时候需要先执行epel源
+
+启动的时候会报错，这个时候需要手动做下软连接 `ln -s /usr/lib64/libmbedcrypto.so.2.7.6 /usr/lib64/libmbedcrypto.so.1`，如下是报错异常：
+
+```log
+[root@us-ss-node01 lib64]# tail -f /var/log/messages
+Nov  5 23:13:00 susan systemd: Starting Shadowsocks-libev Default Server Service...
+Nov  5 23:13:00 susan ss-server: /usr/bin/ss-server: error while loading shared libraries: libmbedcrypto.so.1: cannot open shared object file: No such file or directory
+Nov  5 23:13:00 susan systemd: shadowsocks-libev.service: main process exited, code=exited, status=127/n/a
+Nov  5 23:13:00 susan systemd: Unit shadowsocks-libev.service entered failed state.
+Nov  5 23:13:00 susan systemd: shadowsocks-libev.service failed
+
+```
+
 ## License
 
 GPLv3
